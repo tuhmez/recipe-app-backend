@@ -4,6 +4,7 @@
   "description": "Backend server for recipe web application",
   "main": "index.js",
   "scripts": {
+    "prestart": "npm run protoc",
     "start": "node -r ts-node/register src/index.ts",
     "protoc": "node -r ts-node/register generate-protos.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
