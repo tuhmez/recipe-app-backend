@@ -21,7 +21,7 @@ message RecipeId {
 message Status {
   string description = 1;
   int32 code = 2;
-  bool error = 3;
+  bool is_error = 3;
 }
 
 message Empty {}
@@ -33,6 +33,7 @@ message Pong {
 service Recipe {
   rpc AddRecipe(RecipeMessage) returns (Status);
   rpc GetRecipe(RecipeId) returns (RecipeMessage);
+  rpc GetAllRecipes(Empty) returns (stream RecipeMessage);
   rpc UpdateRecipe(RecipeMessage) returns (Status);
   rpc DeleteRecipe(RecipeId) returns (Status);
   rpc Ping(Empty) returns (Pong);

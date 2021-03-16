@@ -12,7 +12,7 @@ class Communications {
     this.server.addService(recipe.service, recipe.handler);
     this.server.bindAsync(`localhost:${this.serverPort}`, grpc.ServerCredentials.createInsecure(), (err, port) => {
       if (err) throw err;
-      console.info(`Recipe gRPC server started at: [localhost: | ${ip.address()}]:${port}`);
+      console.info(`Recipe gRPC server started at: [localhost | ${ip.address()}]:${port}`);
       this.server.start();
     });
   }
