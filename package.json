@@ -4,6 +4,8 @@
   "description": "Backend server for recipe web application",
   "main": "index.js",
   "scripts": {
+    "build": "npm run clean && tsc -p . && npm run protoc && cp -r src/proto dist/",
+    "clean": "rm -rf dist",
     "prestart": "npm run protoc",
     "start": "node -r ts-node/register src/index.ts",
     "protoc": "node -r ts-node/register generate-protos.ts",
