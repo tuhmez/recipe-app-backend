@@ -10,7 +10,7 @@ class Communications {
     this.server = new grpc.Server();
     // @ts-ignore
     this.server.addService(recipe.service, recipe.handler);
-    this.server.bindAsync(`localhost:${this.serverPort}`, grpc.ServerCredentials.createInsecure(), (err, port) => {
+    this.server.bindAsync(`0.0.0.0:${this.serverPort}`, grpc.ServerCredentials.createInsecure(), (err, port) => {
       if (err) throw err;
       console.info(`Recipe gRPC server started at: [localhost | ${ip.address()}]:${port}`);
       this.server.start();
