@@ -42,6 +42,7 @@ const stepTypeEnumArray = [
   'JUICE',
   'MICROWAVE',
   'MIX',
+  'NONE',
   'POUR',
   'PREPARE',
   'ROAST',
@@ -106,7 +107,7 @@ const RecipeSchema = new Schema({
   favorited: Boolean
 });
 
-RecipeSchema.static('findByDifficulty', function(difficulty: string) { return this.find( {difficulty } ) });
+RecipeSchema.static('findByDifficulty', function(difficulty: string) { return this.find( { difficulty } ) });
 RecipeSchema.static('findByFavorites', function(favorited: boolean) { return this.find({ favorited } ) });
 RecipeSchema.static('findOneOrCreate', async function(recipeId: string) {
   const record = await this.findOne({ recipeId });
@@ -116,7 +117,7 @@ RecipeSchema.static('findOneOrCreate', async function(recipeId: string) {
     return this.create({ recipeId });
   }
 });
-RecipeSchema.static('findByName', function(recipeName: string) { return this.find( {recipeName } ) });
+RecipeSchema.static('findByName', function(recipeName: string) { return this.find( { recipeName } ) });
 RecipeSchema.static('findByType', function(type: string) { return this.find( { type } ) });
 RecipeSchema.static('findByRecipeId', function(recipeId: string) { return this.find( { recipeId } ) });
 
