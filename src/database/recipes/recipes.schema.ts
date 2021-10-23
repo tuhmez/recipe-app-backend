@@ -58,6 +58,12 @@ const stepTypeEnumArray = [
   'ZEST',
 ];
 
+const timeUnitEnumArray = [
+  'SECONDS',
+  'MINUTES',
+  'HOURS'
+];
+
 const difficultyEnumArray = [
   'EASY',
   'MEDIUM',
@@ -80,7 +86,7 @@ const RecipeSchema = new Schema({
   ingredients: [{
     name: String,
     measurement: Number,
-    unit: {
+    units: {
       type: String,
       enum: ingredientUnitsEnumArray,
       defatul: ingredientUnitsEnumArray[0]
@@ -90,6 +96,11 @@ const RecipeSchema = new Schema({
     stepNumber: Number,
     description: String,
     time: Number,
+    timeUnit: {
+      type: String,
+      enum: timeUnitEnumArray,
+      default: timeUnitEnumArray[0]
+    },
     stepType: {
       type: String,
       enum: stepTypeEnumArray,

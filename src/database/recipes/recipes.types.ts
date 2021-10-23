@@ -1,30 +1,5 @@
 import { Document, Model } from 'mongoose';
-
-export interface IRecipe {
-  recipeId: string;
-  recipeName: string;
-  type: string;
-  images: Uint8Array[]
-  linkToWebsite: string;
-  ingredients: IRecipeIngredient[];
-  steps: IRecipeStep[];
-  difficulty: string;
-  keywords: string[];
-  favorited: boolean;
-};
-
-export interface IRecipeIngredient {
-  name: string;
-  measurement: number;
-  unit: string;
-}
-
-export interface IRecipeStep {
-  stepNumber: number;
-  description: string;
-  time: number;
-  stepType: string;
-}
+import { IRecipe } from '../../common/types';
 
 export interface IRecipeDocument extends IRecipe, Document {};
 
@@ -60,8 +35,8 @@ export interface IRecipeModel extends Model<IRecipeDocument> {
       type: string,
       images: Uint8Array[],
       linkToWebsite: string,
-      ingredients: [{ name: string, measurement: number, unit: string }],
-      steps: [{ stepNumber: number, description: string, time: number, stepType: string}],
+      ingredients: [{ name: string, measurement: number, units: string }],
+      steps: [{ stepNumber: number, description: string, time: number, timeUnit: string; stepType: string}],
       difficulty: string,
       keywords: string[],
       favorited: boolean,
