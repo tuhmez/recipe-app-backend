@@ -1,6 +1,4 @@
 import { Schema } from 'mongoose';
-// import { findByDifficulty, findByFavorites, findByRecipeId, findOneOrCreate, findByName, findByType } from './recipes.statics';
-// import {} from './recipes.methods';
 
 const recipeTypeEnumArray = [
   'BREAKFAST',
@@ -72,7 +70,7 @@ const difficultyEnumArray = [
 
 const RecipeSchema = new Schema({
   recipeId: String,
-  recipeName: String,
+  name: String,
   type: {
     type: String,
     enum: recipeTypeEnumArray,

@@ -20,7 +20,7 @@ export interface IRecipeModel extends Model<IRecipeDocument> {
     this: IRecipeModel,
     {
       recipeId,
-      recipeName,
+      name,
       type,
       images,
       linkToWebsite,
@@ -31,7 +31,7 @@ export interface IRecipeModel extends Model<IRecipeDocument> {
       favorited
     }: {
       recipeId: string,
-      recipeName: string,
+      name: string,
       type: string,
       images: Uint8Array[],
       linkToWebsite: string,
