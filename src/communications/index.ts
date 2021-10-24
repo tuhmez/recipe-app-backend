@@ -13,6 +13,8 @@ import {
   GET_RECIPE_BY_ID_REQUEST,
   GET_RECIPE_BY_ID_RESPONSE,
   ERROR,
+  PING,
+  PONG,
 } from './constants';
 import { IRecipe } from "../common/types";
 import { RecipeModel } from "../database";
@@ -40,6 +42,9 @@ export class Communications {
     this.io.on('connect', (socket) => {
       console.info(chalk.cyan(`Connected ${socket.id}`));
       socket
+        .on(PING, () => {
+          socket.emit(PONG, { status: 'OK' });
+        })
         .on(ADD_RECIPE_REQUEST, (request: IRecipe) => {
           if (!request) {
             const err = 'Invalid recipe request!';

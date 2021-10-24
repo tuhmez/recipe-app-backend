@@ -14,3 +14,6 @@ export const GET_RECIPE_BY_ID_REQUEST = 'GET_RECIPE_BY_ID_REQUEST';
 export const GET_RECIPE_BY_ID_RESPONSE = 'GET_RECIPE_BY_ID_RESPONSE';
 // Error
 export const ERROR = 'ERROR';
+// Ping
+export const PING = 'PING';
+export const PONG = 'PONG';
