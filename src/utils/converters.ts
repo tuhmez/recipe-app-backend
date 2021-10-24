@@ -2,13 +2,11 @@ import { IIngredient, IngredientUnit, IRecipe, IStep, RecipeDifficulty, StepType
 import { IRecipeDocument, } from "../database";
 
 export function ingredientDocumentToRecipeIngredient(document: IIngredient): IIngredient {
-  const ingredient: IIngredient = {
+  return {
     name: document.name,
     measurement: document.measurement,
     units: document.units
   };
-  console.log(ingredient);
-  return ingredient;
 }
 
 export function stepDocumentToRecipeStep(document: IStep): IStep {
@@ -18,12 +16,12 @@ export function stepDocumentToRecipeStep(document: IStep): IStep {
     time: document.time,
     timeUnit: document.timeUnit,
     stepType: document.stepType
-  } as IStep;
+  };
 }
 
-export function databaseDocumentToRecipe(document: IRecipeDocument, index: number): IRecipe {
+export function databaseDocumentToRecipe(document: IRecipeDocument, index?: number): IRecipe {
   return {
-    recipeId: `${index + 1}`,
+    recipeId: index ? `${index + 1}` : document.recipeId,
     name: document.name,
     type: document.type,
     images: [] as any[],
@@ -33,5 +31,5 @@ export function databaseDocumentToRecipe(document: IRecipeDocument, index: numbe
     difficulty: document.difficulty as RecipeDifficulty,
     keywords: document.keywords,
     favorited: document.favorited
-  } as IRecipe;
+  };
 }
