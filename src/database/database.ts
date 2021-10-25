@@ -11,12 +11,7 @@ export const connect = async () => {
 
   if (database) return;
 
-  mongoConnect(mongoURI, {
-    useNewUrlParser: true,
-    useFindAndModify: true,
-    useUnifiedTopology: true,
-    useCreateIndex: true
-  });
+  mongoConnect(mongoURI);
 
   database = connection;
 
