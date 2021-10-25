@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import chalk from 'chalk';
 import { address } from 'ip';
+import { v4 as uuidv4 } from 'uuid';
 import {
   ADD_RECIPE_REQUEST,
   ADD_RECIPE_RESPONSE,
@@ -52,24 +53,33 @@ export class Communications {
             socket.emit(ERROR, errorMessageCreator(err));
             return;
           }
-          console.info(chalk.green('Add recipe request...'))
+          console.info(chalk.green('Add recipe request...'));
           RecipeModel.find({}, (err, docs) => {
             if (err) {
               console.info(chalk.red(err));
               socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
               return;
             }
-            request.recipeId = `${docs.length + 1}`;
-            const newRecipe = new RecipeModel(request);
-            newRecipe.save();
-            console.info(chalk.green(`Added recipe ${request.name}!`))
-            socket.emit(ADD_RECIPE_RESPONSE, request);
+            request.recipeId = uuidv4();
+            new RecipeModel(request)
+              .save()
+              .then(
+              (doc) => {
+                const newRecipe = databaseDocumentToRecipe(doc, false);
+                console.info(chalk.green(`Added recipe ${newRecipe.name}!`));
+                socket.emit(ADD_RECIPE_RESPONSE, newRecipe);
+              },
+              (err) => {
+                console.info(chalk.red(err));
+                socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
+              }
+            );
           });
         })
         .on(EDIT_RECIPE_REQUEST, (request: IUpdateRecipeRequest) => {
           const { recipeId, recipe } = request;
           console.info(chalk.green('Edit recipe request...'));
-          RecipeModel.findOneAndUpdate({ recipeId }, recipe, null, (err, doc) => {
+          RecipeModel.findOneAndUpdate({ recipeId }, recipe, { new: true }, (err, doc) => {
             if (err) {
               console.info(chalk.red(err));
               socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
@@ -81,8 +91,9 @@ export class Communications {
               socket.emit(ERROR, errorMessageCreator(error));
               return;
             }
-            console.info(chalk.green(`Edited recipe ${doc.name}!`));
-            socket.emit(EDIT_RECIPE_RESPONSE, recipe);
+            const editedRecipe = databaseDocumentToRecipe(doc, false);
+            console.info(chalk.green(`Edited recipe ${editedRecipe.name}!`));
+            socket.emit(EDIT_RECIPE_RESPONSE, editedRecipe);
           });
         })
         .on(DELETE_RECIPE_REQUEST, (request: IRecipeByIdRequest) => {
@@ -107,8 +118,8 @@ export class Communications {
               socket.emit(ERROR, errorMessageCreator(error));
               return;
             }
-            console.info(chalk.green(`Deleted recipe ${doc.name}!`));
-            const deletedRecipe = databaseDocumentToRecipe(doc);
+            const deletedRecipe = databaseDocumentToRecipe(doc, false);
+            console.info(chalk.green(`Deleted recipe ${deletedRecipe.name}!`));
             socket.emit(DELETE_RECIPE_RESPONSE, deletedRecipe);
           });
         })
@@ -121,7 +132,7 @@ export class Communications {
               socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
               return;
             }
-            allRecipes = docs.map((d, i) => databaseDocumentToRecipe(d, i));
+            allRecipes = docs.map((d, i) => databaseDocumentToRecipe(d, false));
             console.info(chalk.green('Got all recipes!'));
             socket.emit(GET_RECIPES_RESPONSE, allRecipes);
           });
@@ -147,7 +158,7 @@ export class Communications {
               socket.emit(ERROR, errorMessageCreator(error));
               return;
             }
-            const recipeById = databaseDocumentToRecipe(doc);
+            const recipeById = databaseDocumentToRecipe(doc, false);
             console.info(chalk.green(`Got recipe ${recipeById.name}!`));
             socket.emit(GET_RECIPE_BY_ID_RESPONSE, recipeById);
           });
