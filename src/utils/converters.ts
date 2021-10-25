@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import { IIngredient, IngredientUnit, IRecipe, IStep, RecipeDifficulty, StepType, TimeUnit } from "../common/types";
 import { IRecipeDocument, } from "../database";
 
@@ -19,9 +20,9 @@ export function stepDocumentToRecipeStep(document: IStep): IStep {
   };
 }
 
-export function databaseDocumentToRecipe(document: IRecipeDocument, index?: number): IRecipe {
+export function databaseDocumentToRecipe(document: IRecipeDocument, isNew: boolean = false): IRecipe {
   return {
-    recipeId: index ? `${index + 1}` : document.recipeId,
+    recipeId: isNew ? uuidv4() : document.recipeId,
     name: document.name,
     type: document.type,
     images: [] as any[],
