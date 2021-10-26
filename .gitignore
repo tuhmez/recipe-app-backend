@@ -2,3 +2,4 @@ node_modules/
 dist/
 **/*_pb.d.ts
 **/*_pb.js
+coverage/
