@@ -1,4 +1,4 @@
-const exampleRecipe = {
+export const exampleRecipe = {
   "name": "Street Tacos",
   "type": "DINNER",
   "images": [],
