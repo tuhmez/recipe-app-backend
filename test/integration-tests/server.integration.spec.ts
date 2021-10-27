@@ -1,44 +1,36 @@
-import { createServer } from "http";
-import { AddressInfo } from "net";
-import { Server, Socket } from "socket.io";
 import { connect, Socket as ClientSocket} from "socket.io-client";
+import { Communications } from "../../src/communications";
+import {
+  ADD_RECIPE_REQUEST,
+  ADD_RECIPE_RESPONSE,
+  EDIT_RECIPE_REQUEST,
+  EDIT_RECIPE_RESPONSE,
+  DELETE_RECIPE_REQUEST,
+  DELETE_RECIPE_RESPONSE,
+  GET_RECIPES_REQUEST,
+  GET_RECIPES_RESPONSE,
+  GET_RECIPE_BY_ID_REQUEST,
+  GET_RECIPE_BY_ID_RESPONSE,
+  ERROR
+} from "../../src/communications/constants";
 
 describe("verifying generic socket server works", () => {
-  let io: Server, serverSocket: Socket, clientSocket: ClientSocket;
+  let server: Communications, clientSocket: ClientSocket;
+  const port = 3333;
 
   beforeAll((done) => {
-    const httpServer = createServer();
-    io = new Server(httpServer);
-    httpServer.listen(() => {
-      const { port } = httpServer.address() as AddressInfo;
-      clientSocket = connect(`http://localhost:${port}`);
-      io.on("connection", (socket) => {
-        serverSocket = socket;
-      });
-      clientSocket.on("connect", done);
-    });
+    server = new Communications(port);
+    clientSocket = connect(`http://localhost:${port}`);
+    done();
   });
 
   afterAll(() => {
-    io.close();
     clientSocket.close();
+    server.io.close();
   });
 
-  test("should work", (done) => {
-    clientSocket.on("hello", (arg) => {
-      expect(arg).toBe("world");
-      done();
-    });
-    serverSocket.emit("hello", "world");
-  });
+  // TODO: Add integration tests with mongo
+  // test(ADD_RECIPE_REQUEST, (done) => {
 
-  test("should work (with ack)", (done) => {
-    serverSocket.on("hi", (cb) => {
-      cb("hola");
-    });
-    clientSocket.emit("hi", (arg: any) => {
-      expect(arg).toBe("hola");
-      done();
-    });
-  });
+  // });
 });
