@@ -1,4 +1,6 @@
-import { Server, Socket } from "socket.io";
+import { Server, createServer } from 'http';
+import express from 'express';
+import { Server as SocketServer, Socket } from "socket.io";
 import chalk from 'chalk';
 import { address } from 'ip';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,96 +34,97 @@ interface IUpdateRecipeRequest {
 }
 
 export class Communications {
-  public io: Server;
+  public server: Server;
+  public io: SocketServer;
   public socket: Socket | null = null;
 
   constructor(port: number) {
-    this.io = new Server(port);
-
-    console.info(chalk.yellow(`Opened server at: localhost:${port} | ${address()}:${port}`));
+    const app = express();
+    this.server = createServer(app);
+    this.io = new SocketServer(this.server, { cors: { origin: '*' }});
 
     this.io.on('connect', (socket) => {
       console.info(chalk.cyan(`Connected ${socket.id}`));
       socket
-        .on(PING, () => {
-          socket.emit(PONG, { status: 'OK' });
-        })
-        .on(ADD_RECIPE_REQUEST, (request: IRecipe) => {
-          if (!request) {
-            const err = 'Invalid recipe request!';
+      .on(PING, () => {
+        socket.emit(PONG, { status: 'OK' });
+      })
+      .on(ADD_RECIPE_REQUEST, (request: IRecipe) => {
+        if (!request) {
+          const err = 'Invalid recipe request!';
+          console.info(chalk.red(err));
+          socket.emit(ERROR, errorMessageCreator(err));
+          return;
+        }
+        console.info(chalk.green('Add recipe request...'));
+        RecipeModel.find({}, (err, docs) => {
+          if (err) {
             console.info(chalk.red(err));
-            socket.emit(ERROR, errorMessageCreator(err));
+            socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
             return;
           }
-          console.info(chalk.green('Add recipe request...'));
-          RecipeModel.find({}, (err, docs) => {
-            if (err) {
+          request.recipeId = uuidv4();
+          new RecipeModel(request)
+          .save()
+          .then(
+            (doc) => {
+              const newRecipe = databaseDocumentToRecipe(doc, false);
+              console.info(chalk.green(`Added recipe ${newRecipe.name}!`));
+              socket.emit(ADD_RECIPE_RESPONSE, newRecipe);
+            },
+            (err) => {
               console.info(chalk.red(err));
               socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
-              return;
             }
-            request.recipeId = uuidv4();
-            new RecipeModel(request)
-              .save()
-              .then(
-              (doc) => {
-                const newRecipe = databaseDocumentToRecipe(doc, false);
-                console.info(chalk.green(`Added recipe ${newRecipe.name}!`));
-                socket.emit(ADD_RECIPE_RESPONSE, newRecipe);
-              },
-              (err) => {
-                console.info(chalk.red(err));
-                socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
-              }
             );
           });
         })
-        .on(EDIT_RECIPE_REQUEST, (request: IUpdateRecipeRequest) => {
-          const { recipeId, recipe } = request;
-          console.info(chalk.green('Edit recipe request...'));
-          RecipeModel.findOneAndUpdate({ recipeId }, recipe, { new: true }, (err, doc) => {
-            if (err) {
+          .on(EDIT_RECIPE_REQUEST, (request: IUpdateRecipeRequest) => {
+            const { recipeId, recipe } = request;
+            console.info(chalk.green('Edit recipe request...'));
+            RecipeModel.findOneAndUpdate({ recipeId }, recipe, { new: true }, (err, doc) => {
+              if (err) {
+                console.info(chalk.red(err));
+                socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
+                return;
+              }
+              if (!doc) {
+                const error = `Couldn\'t find recipe of Id: ${recipeId}`;
+                console.info(chalk.red(error));
+                socket.emit(ERROR, errorMessageCreator(error));
+                return;
+              }
+              const editedRecipe = databaseDocumentToRecipe(doc, false);
+              console.info(chalk.green(`Edited recipe ${editedRecipe.name}!`));
+              socket.emit(EDIT_RECIPE_RESPONSE, editedRecipe);
+            });
+          })
+          .on(DELETE_RECIPE_REQUEST, (request: IRecipeByIdRequest) => {
+            console.info(chalk.green('Delete recipe request...'));
+            if (!request || !request.recipeId) {
+              const err = 'Invalid Id for request';
               console.info(chalk.red(err));
-              socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
+              socket.emit(ERROR, errorMessageCreator(err));
               return;
             }
-            if (!doc) {
-              const error = `Couldn\'t find recipe of Id: ${recipeId}`;
-              console.info(chalk.red(error));
-              socket.emit(ERROR, errorMessageCreator(error));
-              return;
-            }
-            const editedRecipe = databaseDocumentToRecipe(doc, false);
-            console.info(chalk.green(`Edited recipe ${editedRecipe.name}!`));
-            socket.emit(EDIT_RECIPE_RESPONSE, editedRecipe);
-          });
-        })
-        .on(DELETE_RECIPE_REQUEST, (request: IRecipeByIdRequest) => {
-          console.info(chalk.green('Delete recipe request...'));
-          if (!request || !request.recipeId) {
-            const err = 'Invalid Id for request';
-            console.info(chalk.red(err));
-            socket.emit(ERROR, errorMessageCreator(err));
-            return;
-          }
-          console.info(chalk.green('Delete recipe by Id request...'));
-          const { recipeId } = request;
-          RecipeModel.findOneAndDelete({ recipeId }, null, (err, doc) => {
-            if (err) {
-              console.info(chalk.red(err));
-              socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
-              return;
-            }
-            if (!doc) {
-              const error = `Couldn\'t find recipe of Id: ${recipeId}`;
-              console.info(chalk.red(error));
-              socket.emit(ERROR, errorMessageCreator(error));
-              return;
-            }
-            const deletedRecipe = databaseDocumentToRecipe(doc, false);
-            console.info(chalk.green(`Deleted recipe ${deletedRecipe.name}!`));
-            socket.emit(DELETE_RECIPE_RESPONSE, deletedRecipe);
-          });
+            console.info(chalk.green('Delete recipe by Id request...'));
+            const { recipeId } = request;
+            RecipeModel.findOneAndDelete({ recipeId }, null, (err, doc) => {
+              if (err) {
+                console.info(chalk.red(err));
+                socket.emit(ERROR, errorMessageCreator(JSON.stringify(err)));
+                return;
+              }
+              if (!doc) {
+                const error = `Couldn\'t find recipe of Id: ${recipeId}`;
+                console.info(chalk.red(error));
+                socket.emit(ERROR, errorMessageCreator(error));
+                return;
+              }
+              const deletedRecipe = databaseDocumentToRecipe(doc, false);
+              console.info(chalk.green(`Deleted recipe ${deletedRecipe.name}!`));
+              socket.emit(DELETE_RECIPE_RESPONSE, deletedRecipe);
+            });
         })
         .on(GET_RECIPES_REQUEST, () => {
           console.info(chalk.green('Get recipe request...'));
@@ -163,12 +166,15 @@ export class Communications {
             socket.emit(GET_RECIPE_BY_ID_RESPONSE, recipeById);
           });
         });
-      socket.on('disconnect', () => {
-        console.info(chalk.cyan(`Disconnected ${socket.id}`));
-      })
-      this.socket = socket;
-    });
-  }
+        socket.on('disconnect', () => {
+          console.info(chalk.cyan(`Disconnected ${socket.id}`));
+        })
+        this.socket = socket;
+      });
+      this.server.listen(port, () => {
+        console.info(chalk.yellow(`Opened server at: localhost:${port} | ${address()}:${port}`));
+      });
+    }
 }
 
 export default Communications;
