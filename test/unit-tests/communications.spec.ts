@@ -9,8 +9,6 @@ import {
   GET_RECIPES_REQUEST,
   GET_RECIPES_RESPONSE,
   GET_RECIPE_BY_ID_REQUEST,
-  GET_RECIPE_BY_ID_RESPONSE,
-  ERROR,
   PING,
   PONG,
 } from '../../src/communications/constants';
@@ -27,8 +25,6 @@ describe('constants test', () => {
     expect(GET_RECIPES_REQUEST).toBeTruthy();
     expect(GET_RECIPES_RESPONSE).toBeTruthy();
     expect(GET_RECIPE_BY_ID_REQUEST).toBeTruthy();
-    expect(GET_RECIPE_BY_ID_RESPONSE).toBeTruthy();
-    expect(ERROR).toBeTruthy();
     expect(PING).toBeTruthy();
     expect(PONG).toBeTruthy();
     done();

@@ -6,7 +6,6 @@ import {
   stepDocumentToRecipeStep,
   databaseDocumentToRecipe
 } from '../../src/utils/converters';
-import { errorMessageCreator } from '../../src/utils/error';
 import { IIngredient } from '../../src/common/types';
 
 import {
@@ -16,15 +15,6 @@ import {
   expectedRecipe,
   validUUIDV4
 } from '../resources/expected';
-
-describe('errorMessageCreator', () => {
-  test('returns err object', (done) => {
-    const err = 'test err';
-    const errorMessage = errorMessageCreator(err);
-    expect(errorMessage).toStrictEqual(expectedErrorMessage);
-    done();
-  });
-});
 
 describe('converters', () => {
   let recipeModel: IRecipeDocument;
