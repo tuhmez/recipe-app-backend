@@ -210,6 +210,7 @@ export class Communications {
             const recipeById = databaseDocumentToRecipe(doc, false);
             console.info(chalk.green(`Got recipe ${recipeById.name}!`));
             const res: IGetRecipesResponse = {
+              recipeId,
               recipes: [recipeById]
             };
             socket.emit(GET_RECIPES_RESPONSE, res);
