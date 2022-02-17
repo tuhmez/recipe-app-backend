@@ -25,7 +25,7 @@ export function databaseDocumentToRecipe(document: IRecipeDocument, isNew: boole
     recipeId: isNew ? uuidv4() : document.recipeId,
     name: document.name,
     type: document.type,
-    images: [] as any[],
+    images: document.images.map(i => Buffer.from(i, 'base64').toString()),
     linkToWebsite: document.linkToWebsite,
     ingredients: document.ingredients.map(i => ingredientDocumentToRecipeIngredient(i)),
     steps: document.steps.map(s => stepDocumentToRecipeStep(s)),
