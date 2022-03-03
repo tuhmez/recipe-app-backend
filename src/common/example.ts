@@ -22,18 +22,14 @@ export const exampleRecipe = {
   ],
   "steps": [
     {
-        "stepNumber": 1,
         "description": "Cook chicken",
         "time": 20,
         "timeUnit": "MINUTES",
-        "stepType": "BOIL"
     },
     {
-        "stepNumber": 2,
         "description": "Shred chicken",
         "time": 5,
         "timeUnit": "MINUTES",
-        "stepType": "SHRED"
     }
   ],
   "difficulty": "MEDIUM",

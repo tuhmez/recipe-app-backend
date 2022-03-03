@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
-import { IIngredient, IngredientUnit, IRecipe, IStep, RecipeDifficulty, StepType, TimeUnit } from "../common/types";
+import { IIngredient, IRecipe, IStep, RecipeDifficulty, TimeUnit } from "../common/types";
 import { IRecipeDocument, } from "../database";
 
 export function ingredientDocumentToRecipeIngredient(document: IIngredient): IIngredient {
@@ -12,11 +12,9 @@ export function ingredientDocumentToRecipeIngredient(document: IIngredient): IIn
 
 export function stepDocumentToRecipeStep(document: IStep): IStep {
   return {
-    stepNumber: document.stepNumber,
     description: document.description,
     time: document.time,
     timeUnit: document.timeUnit,
-    stepType: document.stepType
   };
 }
 

@@ -44,47 +44,15 @@ export enum IngredientUnit {
 }
 
 export interface IStep {
-  stepNumber: number;
   description: string;
   time: number;
   timeUnit: TimeUnit;
-  stepType: StepType;
 }
 
 export enum TimeUnit {
   SECONDS = 'SECONDS',
   MINUTES = 'MINUTES',
   HOURS = 'HOURS'
-}
-
-export enum StepType {
-  BAKE = 'BAKE',
-  BOIL = 'BOIL',
-  BROIL = 'BROIL',
-  COOK = 'COOK',
-  CUT = 'CUT',
-  CHOP = 'CHOP',
-  DICE = 'DICE',
-  FREEZE = 'FREEZE',
-  FRY = 'FRY',
-  GRILL = 'GRILL',
-  JUICE = 'JUICE',
-  MICROWAVE = 'MICROWAVE',
-  MIX = 'MIX',
-  NONE = 'NONE',
-  POUR = 'POUR',
-  PREPARE = 'PREPARE',
-  ROAST = 'ROAST',
-  SEASON = 'SEASON',
-  SEPARATE = 'SEPARATE',
-  SIMMER = 'SIMMER',
-  SHRED = 'SHRED',
-  STEW = 'STEW',
-  STEAM = 'STEAM',
-  STIR = 'STIR',
-  TOP = 'TOP',
-  WASH = 'WASH',
-  ZEST = 'ZEST'
 }
 
 export enum RecipeDifficulty {

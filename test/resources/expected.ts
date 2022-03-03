@@ -1,4 +1,4 @@
-import { IIngredient, IngredientUnit, IRecipe, IStep, RecipeDifficulty, RecipeType, StepType, TimeUnit } from '../../src/common/types';
+import { IIngredient, IngredientUnit, IRecipe, IStep, RecipeDifficulty, RecipeType, TimeUnit } from '../../src/common/types';
 
 export const expectedErrorMessage = {
   err: 'test err'
@@ -24,18 +24,14 @@ export const expectedIngredientsList: IIngredient[] = [
 
 export const expectedStepsList: IStep[] = [
   {
-    stepNumber: 1,
     description: 'Cook chicken',
     time: 20,
     timeUnit: TimeUnit.MINUTES,
-    stepType: StepType.BOIL
   },
   {
-    stepNumber: 2,
     description: 'Shred chicken',
     time: 5,
     timeUnit: TimeUnit.MINUTES,
-    stepType: StepType.SHRED
   }
 ];
 

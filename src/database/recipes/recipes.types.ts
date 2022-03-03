@@ -36,7 +36,7 @@ export interface IRecipeModel extends Model<IRecipeDocument> {
       images: Uint8Array[],
       linkToWebsite: string,
       ingredients: [{ name: string, measurement: number, units: string }],
-      steps: [{ stepNumber: number, description: string, time: number, timeUnit: string; stepType: string}],
+      steps: [{ description: string, time: number, timeUnit: string }],
       difficulty: string,
       keywords: string[],
       favorited: boolean,

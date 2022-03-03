@@ -26,36 +26,6 @@ const ingredientUnitsEnumArray = [
   'TEASPOON'
 ];
 
-const stepTypeEnumArray = [
-  'BAKE',
-  'BOIL',
-  'BROIL',
-  'COOK',
-  'CUT',
-  'CHOP',
-  'DICE',
-  'FREEZE',
-  'FRY',
-  'GRILL',
-  'JUICE',
-  'MICROWAVE',
-  'MIX',
-  'NONE',
-  'POUR',
-  'PREPARE',
-  'ROAST',
-  'SEASON',
-  'SEPARATE',
-  'SIMMER',
-  'SHRED',
-  'STEW',
-  'STEAM',
-  'STIR',
-  'TOP',
-  'WASH',
-  'ZEST',
-];
-
 const timeUnitEnumArray = [
   'SECONDS',
   'MINUTES',
@@ -91,7 +61,6 @@ const RecipeSchema = new Schema({
     }
   }],
   steps: [{
-    stepNumber: Number,
     description: String,
     time: Number,
     timeUnit: {
@@ -99,11 +68,6 @@ const RecipeSchema = new Schema({
       enum: timeUnitEnumArray,
       default: timeUnitEnumArray[0]
     },
-    stepType: {
-      type: String,
-      enum: stepTypeEnumArray,
-      default: stepTypeEnumArray[0]
-    }
   }],
   difficulty: {
     type: String,
