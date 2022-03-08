@@ -60,3 +60,9 @@ export enum RecipeDifficulty {
   MEDIUM = 'MEDIUM',
   HARD = 'HARD'
 }
+
+export interface IIssue {
+  issueId: string;
+  name: string;
+  description: string;
+}

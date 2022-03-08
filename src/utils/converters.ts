@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
-import { IIngredient, IRecipe, IStep, RecipeDifficulty, TimeUnit } from "../common/types";
-import { IRecipeDocument, } from "../database";
+import { IIngredient, IIssue, IRecipe, IStep, RecipeDifficulty, TimeUnit } from "../common/types";
+import { IIssueDocument, IRecipeDocument, } from "../database";
 
 export function ingredientDocumentToRecipeIngredient(document: IIngredient): IIngredient {
   return {
@@ -30,5 +30,13 @@ export function databaseDocumentToRecipe(document: IRecipeDocument, isNew: boole
     difficulty: document.difficulty as RecipeDifficulty,
     keywords: document.keywords,
     favorited: document.favorited
+  };
+}
+
+export function databaseDocumentToIssue(document: IIssueDocument, isNew: boolean = false): IIssue {
+  return {
+    issueId: isNew ? uuidv4() : document.issueId,
+    name: document.name,
+    description: document.description
   };
 }
