@@ -52,7 +52,7 @@ export class Communications {
   constructor(port: number) {
     const app = express();
     this.server = createServer(app);
-    this.io = new SocketServer(this.server, { cors: { origin: '*' } });
+    this.io = new SocketServer(this.server, { cors: { origin: '*' }, maxHttpBufferSize: 1e8, pingTimeout: 60000 });
 
     this.io.on('connect', (socket) => {
       console.info(chalk.cyan(`Connected ${socket.id}`));
@@ -369,8 +369,8 @@ export class Communications {
             socket.emit(GET_ISSUE_RESPONSE, res);
           });
         });
-      socket.on('disconnect', () => {
-        console.info(chalk.cyan(`Disconnected ${socket.id}`));
+      socket.on('disconnect', (reason: string) => {
+        console.info(chalk.cyan(`Disconnected ${socket.id} | ${reason}`));
       })
       this.socket = socket;
     });
