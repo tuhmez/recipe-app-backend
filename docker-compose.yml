@@ -9,8 +9,6 @@ services:
         - 3001:3001
     environment:
       - RECIPE_SERVICE_PORT=3001
-      - DATABASE_ADDRESS=mongo
-      - DATABASE_PORT=27017
     restart: always
 networks:
   default:
