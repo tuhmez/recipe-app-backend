@@ -6,17 +6,24 @@ let database: Connection;
 export const connect = async () => {
   const databaseAddress = process.env.DATABASE_ADDRESS || 'localhost';
   const databasePort = process.env.DATABASE_PORT || '27017';
+  const databaseUsername = process.env.DATABASE_USERNAME || '';
+  const databasePassword = process.env.DATABASE_PASSWORD || '';
 
-  const mongoURI = `mongodb://${databaseAddress}:${databasePort}/recipe`;
+  let databaseUrl = `${databaseAddress}`;
+
+  if (databaseAddress.includes('localhost')) databaseUrl += `:${databasePort}`;
+  const databaseCredentials = databaseUsername && databasePassword ? `${databaseUsername}:${encodeURIComponent(databasePassword)}@` : '';
+  
+  const mongoURI = `mongodb+srv://${databaseCredentials}${databaseUrl}/recipe?authSource=admin`;
 
   if (database) return;
 
-  mongoConnect(mongoURI);
+  mongoConnect(mongoURI, { useNewUrlParser: true });
 
   database = connection;
 
   database.once('open', async () => {
-    console.info(chalk.yellow(`Connected to the database at: ${mongoURI}`));
+    console.info(chalk.yellow(`Connected to the database at: ${databaseAddress}`));
   });
   database.on('error', () => {
     console.error(chalk.red('There was an error connecting to the database!'));
