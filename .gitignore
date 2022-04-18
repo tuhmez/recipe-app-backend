@@ -3,3 +3,4 @@ dist/
 **/*_pb.d.ts
 **/*_pb.js
 coverage/
+.env
