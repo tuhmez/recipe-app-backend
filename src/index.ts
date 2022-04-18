@@ -2,6 +2,8 @@ import chalk from 'chalk';
 import { Communications } from './communications';
 import { connect, disconnect } from './database';
 
+require('dotenv').config();
+
 const port = process.env.RECIPE_SERVICE_PORT ? Number(process.env.RECIPE_SERVICE_PORT) : 3001;
 
 connect();
