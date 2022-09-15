@@ -1,4 +1,4 @@
-FROM node:erbium AS builder
+FROM node:16.14 AS builder
 
 WORKDIR /usr/src/app
 
@@ -8,7 +8,7 @@ RUN npm install
 RUN npm rebuild
 RUN npm run build
 
-FROM node:erbium-alpine AS runner
+FROM node:16.14-slim AS runner
 
 WORKDIR /usr/src/app
 
