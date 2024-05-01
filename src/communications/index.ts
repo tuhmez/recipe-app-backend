@@ -1,4 +1,5 @@
-import { Server, createServer } from 'http';
+import { Server, createServer } from 'https';
+import fs from 'fs';
 import express from 'express';
 import { Server as SocketServer, Socket } from "socket.io";
 import chalk from 'chalk';
@@ -51,7 +52,11 @@ export class Communications {
 
   constructor(port: number) {
     const app = express();
-    this.server = createServer(app);
+    let options = {
+      key: fs.readFileSync('./file.pem'),
+      cert: fs.readFileSync('./file.crt')
+    };
+    this.server = createServer(options, app);
     this.io = new SocketServer(this.server, { cors: { origin: '*' }, maxHttpBufferSize: 1e8, pingTimeout: 60000 });
 
     this.io.on('connect', (socket) => {
