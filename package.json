@@ -1,10 +1,10 @@
 {
   "name": "recipe-app-backend",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Backend server for recipe web application",
   "main": "index.js",
   "scripts": {
-    "build": "npm run clean && tsc -p .",
+    "build": "npm run clean && tsc -p . && cp -r ./src/certs ./dist/certs",
     "clean": "rm -rf dist",
     "start": "node -r ts-node/register src/index.ts",
     "test": "jest --coverage",

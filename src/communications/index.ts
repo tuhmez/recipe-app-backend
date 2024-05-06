@@ -53,8 +53,8 @@ export class Communications {
   constructor(port: number) {
     const app = express();
     let options = {
-      key: fs.readFileSync('./file.pem'),
-      cert: fs.readFileSync('./file.crt')
+      key: fs.readFileSync(`${process.env.NODE_ENV === 'prod' ? 'dist' : 'src'}/certs/file.pem`),
+      cert: fs.readFileSync(`${process.env.NODE_ENV === 'prod' ? 'dist' : 'src'}/certs/file.crt`)
     };
     this.server = createServer(options, app);
     this.io = new SocketServer(this.server, { cors: { origin: '*' }, maxHttpBufferSize: 1e8, pingTimeout: 60000 });
