@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npm run clean && tsc -p . && cp -r ./src/certs ./dist/certs",
+    "build:windows": "npm run clean && tsc -p . && cp -r ./src/certs ./dist/certs && cp ./Web.config ./dist",
     "clean": "rm -rf dist",
     "start": "node -r ts-node/register src/index.ts",
     "test": "jest --coverage",
