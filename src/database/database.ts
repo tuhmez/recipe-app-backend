@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { Connection, connection, connect as mongoConnect, disconnect as mongoDisconnect } from 'mongoose';
+import { LogMessage } from "../common/log";
 
 let database: Connection;
 
@@ -23,15 +24,18 @@ export const connect = async () => {
   database = connection;
 
   database.once('open', async () => {
-    console.info(chalk.yellow(`Connected to the database at: ${databaseAddress}`));
+    LogMessage({ type: 'info', prefColor: 'yellow', message: `Connected to the database at: ${databaseAddress}` });
   });
   database.on('error', () => {
-    console.error(chalk.red('There was an error connecting to the database!'));
+    LogMessage({
+      type: 'error',
+      message: 'There was an error connecting to the database!'
+    });
   });
 };
 
 export const disconnect =() => {
   if (!database) return;
   mongoDisconnect();
-  console.info(chalk.red('Disconnected from the database!'));
+  LogMessage({ type: 'info', prefColor: 'red', message: 'Disconnected from the database!' });
 };

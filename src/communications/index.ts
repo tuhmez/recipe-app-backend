@@ -44,6 +44,7 @@ import {
 import { IIssue, IRecipe } from "../common/types";
 import { IssueModel, RecipeModel } from "../database";
 import { databaseDocumentToIssue, databaseDocumentToRecipe } from "../utils/converters";
+import { LogMessage } from '../common/log';
 
 export class Communications {
   public server: Server;
@@ -60,7 +61,7 @@ export class Communications {
     this.io = new SocketServer(this.server, { cors: { origin: '*' }, maxHttpBufferSize: 1e8, pingTimeout: 60000 });
 
     this.io.on('connect', (socket) => {
-      console.info(chalk.cyan(`Connected ${socket.id}`));
+      LogMessage({ type: 'info', message: `Connected ${socket.id}`});
       socket
         .on(PING, () => {
           socket.emit(PONG, { status: 'OK' });
@@ -68,17 +69,17 @@ export class Communications {
         .on(ADD_RECIPE_REQUEST, (request: IAddRecipeRequest) => {
           if (!request) {
             const error = 'Invalid recipe request!';
-            console.info(chalk.red(error));
+            LogMessage({ type: 'error', message: error });
             const res: IAddRecipeResponse = {
               error
             };
             socket.emit(ADD_RECIPE_RESPONSE, res);
             return;
           }
-          console.info(chalk.green('Add recipe request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Add recipe request...'});
           RecipeModel.find({}, (err, docs) => {
             if (err) {
-              console.info(chalk.red(err));
+              LogMessage({ type: 'error', message: JSON.stringify(err) });
               const res: IAddRecipeResponse = {
                 error: JSON.stringify(err)
               }
@@ -91,14 +92,14 @@ export class Communications {
               .then(
                 (doc) => {
                   const newRecipe = databaseDocumentToRecipe(doc, false);
-                  console.info(chalk.green(`Added recipe ${newRecipe.name}!`));
+                  LogMessage({ type: 'info', prefColor: 'green', message: `Added reciped ${newRecipe.name}`});
                   const res: IAddRecipeResponse = {
                     recipe: newRecipe
                   };
                   socket.emit(ADD_RECIPE_RESPONSE, res);
                 },
                 (err) => {
-                  console.info(chalk.red(err));
+                  LogMessage({ type: 'error', message: err });
                   const res: IAddRecipeResponse = {
                     error: JSON.stringify(err)
                   };
@@ -109,10 +110,10 @@ export class Communications {
         })
         .on(EDIT_RECIPE_REQUEST, (request: IEditRecipeRequest) => {
           const { recipeId } = request;
-          console.info(chalk.green('Edit recipe request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Edit recipe request...' });
           RecipeModel.findOneAndUpdate({ recipeId }, request, { new: true }, (err, doc) => {
             if (err) {
-              console.info(chalk.red(err));
+              LogMessage({ type: 'error', message: JSON.stringify(err) });
               const res: IEditRecipeResponse = {
                 error: JSON.stringify(err)
               };
@@ -121,15 +122,15 @@ export class Communications {
             }
             if (!doc) {
               const error = `Couldn\'t find recipe of Id: ${recipeId}`;
-              console.info(chalk.red(error));
+              LogMessage({ type: 'info', prefColor: 'red', message: error });
               const res: IEditRecipeResponse = {
-                error: JSON.stringify(error)
-              }
+                error,
+              };
               socket.emit(EDIT_RECIPE_RESPONSE, res);
               return;
             }
             const editedRecipe = databaseDocumentToRecipe(doc, false);
-            console.info(chalk.green(`Edited recipe ${editedRecipe.name}!`));
+            LogMessage({ type: 'info', prefColor: 'green', message: `Edited recipe ${editedRecipe.name}` });
             const res: IEditRecipeResponse = {
               recipe: editedRecipe
             };
@@ -137,21 +138,21 @@ export class Communications {
           });
         })
         .on(DELETE_RECIPE_REQUEST, (request: IDeleteRecipeRequest) => {
-          console.info(chalk.green('Delete recipe request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Delete recipe request...'});
           if (!request || !request.recipeId) {
             const error = 'Invalid Id for request';
-            console.info(chalk.red(error));
+            LogMessage({ type: 'error', message: error });
             const res: IDeleteRecipeResponse = {
               error
             };
             socket.emit(DELETE_RECIPE_RESPONSE, res);
             return;
           }
-          console.info(chalk.green('Delete recipe by Id request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Delete recipe by Id request...' });
           const { recipeId } = request;
           RecipeModel.findOneAndDelete({ recipeId }, null, (err, doc) => {
             if (err) {
-              console.info(chalk.red(err));
+              LogMessage({ type: 'info', prefColor: 'red', message: JSON.stringify(err) });
               const res: IDeleteRecipeResponse = {
                 error: JSON.stringify(err)
               };
@@ -160,7 +161,7 @@ export class Communications {
             }
             if (!doc) {
               const error = `Couldn\'t find recipe of Id: ${recipeId}`;
-              console.info(chalk.red(error));
+              LogMessage({ type: 'info', prefColor: 'red', message: error });
               const res: IDeleteRecipeResponse = {
                 error
               };
@@ -168,7 +169,7 @@ export class Communications {
               return;
             }
             const deletedRecipe = databaseDocumentToRecipe(doc, false);
-            console.info(chalk.green(`Deleted recipe ${deletedRecipe.name}!`));
+            LogMessage({ type: 'info', prefColor: 'green', message: `Deleted recipe ${deletedRecipe.name}!`} );
             const res: IDeleteRecipeResponse = {
               recipe: deletedRecipe
             };
@@ -176,11 +177,11 @@ export class Communications {
           });
         })
         .on(GET_RECIPES_REQUEST, () => {
-          console.info(chalk.green('Get recipe request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Get recipe request...' });
           let allRecipes: IRecipe[] = [];
           RecipeModel.find({}, (err, docs) => {
             if (err) {
-              console.info(chalk.red(err));
+              LogMessage({ type: 'info', prefColor: 'red', message: JSON.stringify(err) });
               const res: IGetRecipesResponse = {
                 error: JSON.stringify(err)
               };
@@ -188,7 +189,7 @@ export class Communications {
               return;
             }
             allRecipes = docs.map(d => databaseDocumentToRecipe(d, false));
-            console.info(chalk.green('Got all recipes!'));
+            LogMessage({ type: 'info', prefColor: 'green', message: 'Got all recipes!' });
             const res: IGetRecipesResponse = {
               recipes: allRecipes
             };
@@ -198,18 +199,18 @@ export class Communications {
         .on(GET_RECIPE_BY_ID_REQUEST, (request: IGetRecipeByIdRequest) => {
           if (!request || !request.recipeId) {
             const error = 'Invalid Id for request!';
-            console.info(chalk.red(error));
+            LogMessage({ type: 'info', prefColor: 'red', message: error });
             const res: IGetRecipesResponse = {
               error
             };
             socket.emit(GET_RECIPES_RESPONSE, res);
             return;
           }
-          console.info(chalk.green('Get recipe by Id request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Get recipe by Id request...' });
           const { recipeId } = request;
           RecipeModel.findOne({ recipeId }, null, null, (err, doc) => {
             if (err) {
-              console.info(chalk.red(err));
+              LogMessage({ type: 'info', prefColor: 'red', message: JSON.stringify(err) });
               const res: IGetRecipesResponse = {
                 error: JSON.stringify(err)
               };
@@ -218,7 +219,7 @@ export class Communications {
             }
             if (!doc) {
               const error = `Couldn\'t find recipe of Id: ${recipeId}`;
-              console.info(chalk.red(error));
+              LogMessage({ type: 'info', prefColor: 'red', message: error });
               const res: IGetRecipesResponse = {
                 error
               };
@@ -226,7 +227,7 @@ export class Communications {
               return;
             }
             const recipeById = databaseDocumentToRecipe(doc, false);
-            console.info(chalk.green(`Got recipe ${recipeById.name}!`));
+            LogMessage({ type: 'info', prefColor: 'green', message: `Got recipe ${recipeById.name}!`} );
             const res: IGetRecipesResponse = {
               recipeId,
               recipes: [recipeById]
@@ -237,17 +238,17 @@ export class Communications {
         .on(ADD_ISSUE_REQUEST, (request: IAddIssueRequest) => {
           if (!request) {
             const error = 'Invalid issue request!';
-            console.info(chalk.red(error));
+            LogMessage({ type: 'info', prefColor: 'red', message: error });
             const res: IAddIssueResponse = {
               error
             };
             socket.emit(ADD_ISSUE_RESPONSE, res);
             return;
           }
-          console.info(chalk.green('Add issue request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Add issue request...' });
           IssueModel.find({}, (err, docs) => {
             if (err) {
-              console.info(chalk.red(err));
+              LogMessage({ type: 'info', prefColor: 'red', message: JSON.stringify(err) });
               const res: IAddIssueResponse = {
                 error: JSON.stringify(err)
               }
@@ -260,14 +261,14 @@ export class Communications {
               .then(
                 (doc) => {
                   const newIssue = databaseDocumentToIssue(doc, false);
-                  console.info(chalk.green(`Added issue ${newIssue.name}!`));
+                  LogMessage({ type: 'info', prefColor: 'green', message: `Added issue ${newIssue.name}!` });
                   const res: IAddIssueResponse = {
                     issue: newIssue
                   };
                   socket.emit(ADD_ISSUE_RESPONSE, res);
                 },
                 (err) => {
-                  console.info(chalk.red(err));
+                  LogMessage({ type: 'info', prefColor: 'red', message: JSON.stringify(err) });
                   const res: IAddIssueResponse = {
                     error: JSON.stringify(err)
                   };
@@ -277,21 +278,21 @@ export class Communications {
           });
         })
         .on(DELETE_ISSUE_REQUEST, (request: IDeleteIssueRequest) => {
-          console.info(chalk.green('Delete issue request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Delete issue request...' });
           if (!request || !request.issueId) {
             const error = 'Invalid Id for request';
-            console.info(chalk.red(error));
+            LogMessage({ type: 'info', prefColor: 'red', message: error });
             const res: IDeleteIssueResponse = {
               error
             };
             socket.emit(DELETE_ISSUE_RESPONSE, res);
             return;
           }
-          console.info(chalk.green('Delete recipe by Id request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Delete recipe by Id request...' });
           const { issueId } = request;
           IssueModel.findOneAndDelete({ issueId }, null, (err, doc) => {
             if (err) {
-              console.info(chalk.red(err));
+              LogMessage({ type: 'info', prefColor: 'red', message: JSON.stringify(err) });
               const res: IDeleteIssueResponse = {
                 error: JSON.stringify(err)
               };
@@ -300,7 +301,7 @@ export class Communications {
             }
             if (!doc) {
               const error = `Couldn\'t find recipe of Id: ${issueId}`;
-              console.info(chalk.red(error));
+              LogMessage({ type: 'info', prefColor: 'red', message: error });
               const res: IDeleteIssueResponse = {
                 error
               };
@@ -308,7 +309,7 @@ export class Communications {
               return;
             }
             const deletedIssue = databaseDocumentToIssue(doc, false);
-            console.info(chalk.green(`Deleted recipe ${deletedIssue.name}!`));
+            LogMessage({ type: 'info', prefColor: 'green', message: `Deleted recipe ${deletedIssue.name}!` });
             const res: IDeleteIssueResponse = {
               issue: deletedIssue
             };
@@ -316,11 +317,11 @@ export class Communications {
           });
         })
         .on(GET_ISSUE_REQUEST, () => {
-          console.info(chalk.green('Get issue request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Get issue request...' });
           let allIssues: IIssue[] = [];
           IssueModel.find({}, (err, docs) => {
             if (err) {
-              console.info(chalk.red(err));
+              LogMessage({ type: 'info', prefColor: 'red', message: JSON.stringify(err) });
               const res: IGetIssueResponse = {
                 error: JSON.stringify(err)
               };
@@ -328,7 +329,7 @@ export class Communications {
               return;
             }
             allIssues = docs.map(d => databaseDocumentToIssue(d, false));
-            console.info(chalk.green('Got all issues!'));
+            LogMessage({ type: 'info', prefColor: 'green', message: 'Got all issues!' });
             const res: IGetIssueResponse = {
               issues: allIssues
             };
@@ -338,18 +339,18 @@ export class Communications {
         .on(GET_ISSUE_BY_ID_REQUEST, (request: IGetIssueByIdRequest) => {
           if (!request || !request.issueId) {
             const error = 'Invalid Id for request!';
-            console.info(chalk.red(error));
+            LogMessage({ type: 'info', prefColor: 'red', message: error });
             const res: IGetIssueResponse = {
               error
             };
             socket.emit(GET_ISSUE_RESPONSE, res);
             return;
           }
-          console.info(chalk.green('Get recipe by Id request...'));
+          LogMessage({ type: 'info', prefColor: 'green', message: 'Get recipe by Id request...' });
           const { issueId } = request;
           IssueModel.findOne({ issueId }, null, null, (err, doc) => {
             if (err) {
-              console.info(chalk.red(err));
+              LogMessage({ type: 'info', prefColor: 'red', message: JSON.stringify(err) });
               const res: IGetIssueResponse = {
                 error: JSON.stringify(err)
               };
@@ -358,7 +359,7 @@ export class Communications {
             }
             if (!doc) {
               const error = `Couldn\'t find recipe of Id: ${issueId}`;
-              console.info(chalk.red(error));
+              LogMessage({ type: 'info', prefColor: 'red', message: error });
               const res: IGetIssueResponse = {
                 error
               };
@@ -366,7 +367,7 @@ export class Communications {
               return;
             }
             const issueById = databaseDocumentToIssue(doc, false);
-            console.info(chalk.green(`Got recipe ${issueById.name}!`));
+            LogMessage({ type: 'info', prefColor: 'green', message: `Got recipe ${issueById.name}!` });
             const res: IGetIssueResponse = {
               issueId,
               issues: [issueById]
@@ -375,12 +376,12 @@ export class Communications {
           });
         });
       socket.on('disconnect', (reason: string) => {
-        console.info(chalk.cyan(`Disconnected ${socket.id} | ${reason}`));
+        LogMessage({ type: 'info', prefColor: 'cyan', message: `Disconnected ${socket.id} | ${reason}` })
       })
       this.socket = socket;
     });
     this.server.listen(port, () => {
-      console.info(chalk.yellow(`Opened server at: localhost:${port} | ${address()}:${port}`));
+      LogMessage({ type: 'info', prefColor: 'yellow', message: `Opened server at: localhost:${port} | ${address()}:${port}` });
     });
   }
 }
