@@ -178,6 +178,7 @@ export class Communications {
         })
         .on(GET_RECIPES_REQUEST, () => {
           LogMessage({ type: 'info', prefColor: 'green', message: 'Get recipe request...' });
+          const start = performance.now();
           let allRecipes: IRecipe[] = [];
           RecipeModel.find({}, (err, docs) => {
             if (err) {
@@ -189,11 +190,13 @@ export class Communications {
               return;
             }
             allRecipes = docs.map(d => databaseDocumentToRecipe(d, false));
-            LogMessage({ type: 'info', prefColor: 'green', message: 'Got all recipes!' });
             const res: IGetRecipesResponse = {
               recipes: allRecipes
             };
             socket.emit(GET_RECIPES_RESPONSE, res);
+            const end = performance.now();
+            const duration = end - start;
+            LogMessage({ type: 'info', prefColor: 'green', message: `Got all recipes! [${Math.round(duration) / 1000} s]` });
           });
         })
         .on(GET_RECIPE_BY_ID_REQUEST, (request: IGetRecipeByIdRequest) => {
