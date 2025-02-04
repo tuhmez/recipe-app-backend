@@ -180,7 +180,9 @@ export class Communications {
           LogMessage({ type: 'info', prefColor: 'green', message: 'Get recipe request...' });
           const start = performance.now();
           let allRecipes: IRecipe[] = [];
+          const findStart = performance.now();
           RecipeModel.find({}, (err, docs) => {
+            LogMessage({ type: 'info', prefColor: 'yellow', message: `RecipeModel.find completed! [${Math.round(performance.now() - findStart)} ms]` });
             if (err) {
               LogMessage({ type: 'info', prefColor: 'red', message: JSON.stringify(err) });
               const res: IGetRecipesResponse = {
@@ -189,7 +191,9 @@ export class Communications {
               socket.emit(GET_RECIPES_RESPONSE, res);
               return;
             }
+            const mapStart = performance.now();
             allRecipes = docs.map(d => databaseDocumentToRecipe(d, false));
+            LogMessage({ type: 'info', prefColor: 'yellow', message: `docs.map completed! [${Math.round(performance.now() - mapStart)} ms]` });
             const res: IGetRecipesResponse = {
               recipes: allRecipes
             };
